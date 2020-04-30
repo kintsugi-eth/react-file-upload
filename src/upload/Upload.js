@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Dropzone from "../dropzone/Dropzone";
 import "./Upload.css";
 import Progress from "../progress/Progress";
-import HugeUploader from 'huge-uploader';
+import Uploader from '../services/uploader';
 class Upload extends Component {
   constructor(props) {
     super(props);
@@ -41,13 +41,11 @@ class Upload extends Component {
     }
   }
 
-
-  //
   //
   // Concentrate on this function, here is the magic happens
   sendRequest(file) {
       const fileType = file.name.substring(file.name.lastIndexOf('.'), file.name.length);
-      const uploader = new HugeUploader(
+      const uploader = new Uploader(
           {
               endpoint: 'http://localhost:3001/upload-chunk',
               file: file,
@@ -57,7 +55,7 @@ class Upload extends Component {
                   "mime-type": fileType
               }
           });
-      // subscribe to events
+      // subscribe to event
       uploader.on('error', (err) => {
           console.error('Something bad happened', err.detail);
       });
@@ -72,8 +70,8 @@ class Upload extends Component {
           this.setState({ uploadProgress: copy });
       });
 
-      uploader.on('finish', () => {
-          console.log('yeahhh');
+      uploader.on('completed', (response) => {
+          console.log('yeahhh', uploader.result);
           const copy = { ...this.state.uploadProgress };
           copy[file.name] = { state: "done", percentage: 100 };
           this.setState({ uploadProgress: copy });
